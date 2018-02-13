@@ -3,6 +3,7 @@ import {
     Text,
     View,
     Image,
+    TextInput,
     StyleSheet,
     Dimensions,
     TouchableOpacity
@@ -14,7 +15,8 @@ export default class Photo extends Component {
     constructor(props){
         super(props);
         this.state = {
-            foto: this.props.foto
+            foto: this.props.foto,
+            valorComentario: ''
         }
     }
 
@@ -41,6 +43,27 @@ export default class Photo extends Component {
             <Text>{foto.comentario}</Text>
         </View>
         );
+    }
+
+    addComentario(){
+        if(this.state.valorComentario === '')
+            return;
+
+        const novaLista = [
+            ...this.state.foto.comentarios,
+            {
+                id: this.state.valorComentario,
+                login: 'meuUsuario',
+                texto: this.state.valorComentario
+            }
+        ];
+        const fotoAtualizada = {
+            ...this.state.foto,
+            comentarios: novaLista
+        };
+
+        this.setState({ foto: fotoAtualizada, valorComentario: '' });
+        this.inputComentario.clear();
     }
 
     like() {
@@ -82,6 +105,23 @@ export default class Photo extends Component {
                     </TouchableOpacity>
                     {this.exibeLikes(foto.likers)}
                     {this.exibeLegenda(foto)}
+                    {foto.comentarios.map( comentario =>
+                        <View key={comentario.id} style={styles.comentario}>
+                            <Text style={styles.tituloComentario}>{comentario.login}</Text>
+                            <Text>{comentario.texto}</Text>
+                        </View>
+                    )}
+                    <View style={styles.novoComentario}>
+                        <TextInput style={styles.input}
+                                   placeholder='Adicione um comentário...'
+                                   ref={input => this.inputComentario = input}
+                                   onChangeText={texto => this.setState({ valorComentario: texto })}
+                        />
+                        <TouchableOpacity onPress={this.addComentario.bind(this)}>
+                            <Image style={styles.icone}
+                                   source={require('../images/dog001.jpg')}/>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         );
@@ -121,5 +161,19 @@ const styles = StyleSheet.create({
     tituloComentario: {
         fontWeight: 'bold',
         marginRight: 5
+    },
+    input:{
+        flex: 1,
+        height: 40
+    },
+    icone: {
+        width: 30,
+        height: 30
+    },
+    novoComentario: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd'
     }
 });
